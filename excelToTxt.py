@@ -26,9 +26,16 @@ def syntax_analyzer() -> tuple[str, str]:
         default=DESKTOP_DEFAULT,
         help="Folder for result txt file"
     )
+    parser.add_argument(
+        "-n",
+        "--name",
+        nargs="?",
+        default="result",
+        help="Name for result file txt"
+    )
     args = parser.parse_args()
     if os.path.isdir(args.inputdir) and os.path.isdir(args.outputdir):
-        return args.inputdir, args.outputdir
+        return args.inputdir, args.outputdir, args.name
     sys.exit("No correct path to output directory")
 
 
@@ -60,19 +67,23 @@ def read_excel(path_to_file: str) -> str:
     return "\n".join(result)
 
 
-def write_to_txt(path_to_file: str, data: str, name="result.txt") -> None:
-    name_file = os.path.join(path_to_file, name)
+def write_to_txt(path_to_file: str, data: str, name: str) -> None:
+    name_file = os.path.join(path_to_file, f"{name}.txt")
     with open(name_file, "w", encoding="utf8") as file:
         file.write(data)
 
 
 def main() -> None:
-    input, output = syntax_analyzer()
+    input, output, name = syntax_analyzer()
     excel_files_list = check_files(input)
     buffer = io.StringIO()
     for excel_file in excel_files_list:
         buffer.write(read_excel(excel_file))
-    write_to_txt(path_to_file=output, data=buffer.getvalue())
+    write_to_txt(
+        path_to_file=output,
+        data=buffer.getvalue(),
+        name=name
+    )
 
 
 if __name__ == "__main__":
